@@ -37,11 +37,13 @@ Start Ray cluster:
 
 Build Weaviate index:
 
-    python -m ray_retriever.index.build_wikipedia_index --dataset-size 1000 --num-partitions 4 --weaviate-url http://localhost:9001 --num-gpus 0.25
+    RAY_DEDUP_LOGS=0 python -m ray_retriever.index.build_wikipedia_index --dataset-size 1000 --num-partitions 4 --weaviate-url http://localhost:9001 --num-gpus 0.25
     
 ## Retriever Service
 
-Start Retriever using a deployment configuration:
+Customizer deployment config file `deploy-configs/retriever_serve.yaml`. 
+
+Start Retriever:
 
     serve run deploy-configs/retriever_serve.yaml
 

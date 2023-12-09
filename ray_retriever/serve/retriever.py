@@ -5,7 +5,7 @@ from ray.serve import Application
 from ray.serve.handle import DeploymentHandle, DeploymentResponse
 from starlette.requests import Request
 from starlette.responses import Response, JSONResponse
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from ray_retriever.utils.logging_utils import get_logger
 from ray_retriever.constants import DEFAULT_EMBEDDING_MODEL, DEFAULT_RERANK_MODEL
 from ray_retriever.serve.schema import RetrieverResponse

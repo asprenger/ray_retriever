@@ -26,8 +26,8 @@ applications:
     weaviate_hostname: 127.0.0.1
     weaviate_port: 9001
     index_name: Wikipedia
-    similarity_top_n: 5
-    rerank_top_n: 20
+    similarity_top_n: 20
+    rerank_top_n: 3
     rerank_batch_size: 32
     response_model: meta-llama/Llama-2-70b-chat-hf
     anyscale_endpoint_key: {ANYSCALE_API_KEY}
