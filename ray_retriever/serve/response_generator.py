@@ -1,5 +1,4 @@
 from typing import List, Dict, Optional
-import time
 from ray import serve
 from llama_index.llms.base import ChatResponse
 from llama_index.llms import ChatMessage, MessageRole
@@ -54,10 +53,5 @@ class ResponseGenerator():
             ChatMessage(role=MessageRole.SYSTEM, content=system_message),
             ChatMessage(role=MessageRole.USER, content=user_message)
         ]
-
-        start = time.perf_counter()
-        #response:ChatResponse = await self.llm.achat(message_history)
-        duration = time.perf_counter() - start
-        
-        #return RetrieverResponse(response=response.message.content)
-        return RetrieverResponse(response='RESPONSE')
+        response:ChatResponse = await self.llm.achat(message_history)
+        return RetrieverResponse(response=response.message.content)

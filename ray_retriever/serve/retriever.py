@@ -26,7 +26,8 @@ app = FastAPI()
 @serve.deployment(name='Retriever')
 @serve.ingress(app)
 class Retriever():
-
+    """This class chains together the different stages of the RAG pipeline."""
+    
     def __init__(self, embedding_generator, search_engine, reranker, response_generator):
         self._embedding_generator: DeploymentHandle = embedding_generator.options(
             use_new_handle_api=True,
@@ -52,8 +53,10 @@ class Retriever():
             payload = await request.json()
             query = payload['question'] # TODO validate
 
-            # Define the processing pipeline. The response of each step in passed directly into the next step. 
-            # No `await` needed, this is handled internally by Ray.
+            # Define the RAG pipeline. The response of each step in passed directly into the next step. 
+            # We don’t need to await any of the intermediate responses, Ray Serve manages the await behavior 
+            # under the hood.
+
             embedding_response: DeploymentResponse = self._embedding_generator.calculate_embedding.remote(query)
             search_response: DeploymentResponse = self._search_engine.search.remote(embedding_response)
             rerank_response: DeploymentResponse = self._reranker.rerank.remote(query, search_response)
