@@ -4,7 +4,7 @@ from ray import serve
 from ray.serve import Application
 from ray.serve.handle import DeploymentHandle, DeploymentResponse
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import Response, JSONResponse
 from fastapi import FastAPI, Request, HTTPException
 from ray_retriever.utils.logging_utils import get_logger
 from ray_retriever.constants import DEFAULT_EMBEDDING_MODEL, DEFAULT_RERANK_MODEL
@@ -48,10 +48,12 @@ class Retriever():
         return Response(status_code=200)
 
     @app.post("/query")
-    async def query(self, request: Request) -> RetrieverResponse:
+    async def query(self, request: Request) -> JSONResponse:
         try:
             payload = await request.json()
-            query = payload['question'] # TODO validate
+            if 'question' not in payload:
+                return JSONResponse(status_code=400, content='Missing parameter: "question"')
+            query = payload['question'] 
 
             # Define the RAG pipeline. The response of each step in passed directly into the next step. 
             # We don’t need to await any of the intermediate responses, Ray Serve manages the await behavior 
@@ -60,16 +62,17 @@ class Retriever():
             embedding_response: DeploymentResponse = self._embedding_generator.calculate_embedding.remote(query)
             search_response: DeploymentResponse = self._search_engine.search.remote(embedding_response)
             rerank_response: DeploymentResponse = self._reranker.rerank.remote(query, search_response)
-            response: DeploymentResponse = self._response_generator.generate_response.remote(query, rerank_response)
+            generated_response: DeploymentResponse = self._response_generator.generate_response.remote(query, rerank_response)
 
             # Wait for the respone of the chain
-            return await response
+            response = await generated_response
+            return JSONResponse(content={'response':response.response})
         
         except JSONDecodeError as e:
-            raise HTTPException(status_code=400, detail=f'Error parsing JSON request')        
+            return JSONResponse(status_code=400, content='Error parsing JSON request')
         except Exception as e:
             logger.error('Error in query()', exc_info=1)
-            raise HTTPException(status_code=500, detail=f'Internal error')
+            return JSONResponse(status_code=500, content='Internal error')
 
 def deployment(args: Dict[str, str]) -> Application:
 
