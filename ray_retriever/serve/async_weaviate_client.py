@@ -15,7 +15,7 @@ class AsyncWeaviateClient():
                 "valueText": "Alan Turing"
             }
 
-        Composit filter example:
+        Composite filter example:
 
             operands = [
                 {"path": "title", "operator": "Equal", "valueText": "Alan Turing"},
