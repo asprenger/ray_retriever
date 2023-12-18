@@ -1,5 +1,5 @@
 import unittest
-from semantic_search.utils.common_utils import partition, obfuscate_password
+from ray_retriever.utils.common_utils import partition, obfuscate_password
 
 class CommonUtilsCases(unittest.TestCase):
 

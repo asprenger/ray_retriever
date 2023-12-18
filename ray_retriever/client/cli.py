@@ -5,7 +5,7 @@ from rich import print as rp
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from ray_retriever.client import sdk
 
-# python -m semantic_search.client.cli query 'Where has Alan Turing been born?'
+# python -m ray_retriever.client.cli query 'Where has Alan Turing been born?'
 
 app = typer.Typer()
 
