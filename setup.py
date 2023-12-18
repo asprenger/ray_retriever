@@ -34,7 +34,7 @@ requirements = [
     "ray[serve]==2.8.0",
     "pydantic==1.10.13", # fix problem with Ray Serve startup
     "langchain==0.0.340",
-    "llama-index==0.9.7",
+    "llama-index==0.9.16",
     "protobuf==3.20.3",
     "openai",
     "openapi-schema-pydantic",
