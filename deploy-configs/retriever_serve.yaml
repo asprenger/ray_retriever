@@ -29,8 +29,15 @@ applications:
     similarity_top_n: 20
     rerank_top_n: 3
     rerank_batch_size: 32
+    # Anyscale models:
+    # meta-llama/Llama-2-7b-chat-hf
+    # meta-llama/Llama-2-13b-chat-hf
+    # meta-llama/Llama-2-70b-chat-hf
+    # codellama/CodeLlama-34b-Instruct-hf
+    # mistralai/Mistral-7B-Instruct-v0.1
+    # mistralai/Mixtral-8x7B-Instruct-v0.1
     response_model: meta-llama/Llama-2-70b-chat-hf
-    anyscale_endpoint_key: {ANYSCALE_API_KEY}
+    anyscale_endpoint_key: {ANYSCALE_ENDPOINT_KEY}
     #response_model: gpt-3.5-turbo
     #openai_api_key: {OPENAI_API_KEY}
 
