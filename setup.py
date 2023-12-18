@@ -45,7 +45,6 @@ requirements = [
     "sentence-transformers==2.2.2",
     "typer==0.9.0",
     "rich==13.3.0",
-    "numexpr==2.7.3",
     "torch==2.1.1"
 ]
 
