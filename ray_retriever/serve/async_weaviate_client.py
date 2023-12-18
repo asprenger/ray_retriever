@@ -110,9 +110,8 @@ class AsyncWeaviateClient():
         nodes = [to_node(entry) for entry in entries]
 
         nodes = nodes[: similarity_top_k]
-        node_idxs = [str(i) for i in range(len(nodes))]
 
-        return VectorStoreQueryResult(nodes=nodes, ids=node_idxs, similarities=similarities)
+        return VectorStoreQueryResult(nodes=nodes, similarities=similarities)
 
     async def get_all_nodes(self, index_name:str, 
                             filter:Optional[Dict]=None,

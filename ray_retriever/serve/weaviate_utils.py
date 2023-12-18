@@ -24,8 +24,12 @@ def parse_get_response(response: Dict) -> Dict:
 
 def to_node(entry:Dict) -> TextNode:
     id = entry['_additional']['id']
+    if 'vector' in entry['_additional']:
+        embedding = entry['_additional']['vector']
+    else:
+        embedding = None
     node_content = json.loads(entry['_node_content'])
     metadata = node_content['metadata']
     text = entry['text']
-    return TextNode(id=id, metadata=metadata, text=text)
+    return TextNode(id=id, metadata=metadata, text=text, embedding=embedding)
 

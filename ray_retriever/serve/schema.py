@@ -6,7 +6,7 @@ class TextNode(BaseModel):
     id: str
     metadata: Dict
     text: str
-
+    embedding: Optional[List[float]]
 
 class NodeWithScore(BaseModel):
     node: TextNode
@@ -21,7 +21,5 @@ class DocumentEmbedding(BaseModel):
 @dataclass
 class VectorStoreQueryResult:
     """Vector store query result."""
-
     nodes: Optional[Sequence[TextNode]] = None
     similarities: Optional[List[float]] = None
-    ids: Optional[List[str]] = None
