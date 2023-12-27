@@ -126,7 +126,8 @@ class AsyncWeaviateClient():
         if return_embeddings:
             additional_properties.append("vector")
         query_builder = query_builder.with_additional(additional_properties)
-        query_builder = query_builder.with_limit(max_result_size)
+        if max_result_size:
+            query_builder = query_builder.with_limit(max_result_size)
         if filter:
             query_builder.with_where(filter)
 
@@ -144,4 +145,5 @@ class AsyncWeaviateClient():
         return nodes
 
     async def close(self):
+        self.client._connection.close()
         await self.http_session.close()
