@@ -1,10 +1,8 @@
 from typing import List, Dict, Optional
 from ray import serve
-from llama_index.llms.base import ChatResponse
-from llama_index.llms import ChatMessage, MessageRole
+from openai import AsyncOpenAI
 from ray_retriever.utils.logging_utils import get_logger
-from ray_retriever.serve.schema import NodeWithScore, RetrieverResponse
-from ray_retriever.serve.llm import setup_openai_llm, setup_anyscale_llm
+from ray_retriever.serve.schema import NodeWithScore, RetrieverResponse, TokenUsage
 
 logger = get_logger()
 
@@ -18,21 +16,18 @@ class ResponseGenerator():
                  llm_max_tokens:int=256,
                  temperature:float=0.0):
         
-        if anyscale_endpoint_key and openai_api_key:
-            raise ValueError('Only one of ["anyscale_endpoint_key", "openai_api_key"] must be set')
-
         if anyscale_endpoint_key:
-            self.llm = setup_anyscale_llm(anyscale_endpoint_key=anyscale_endpoint_key,
-                                          model=model_id,
-                                          max_tokens=llm_max_tokens,
-                                          temperature=temperature)
+            self.client = AsyncOpenAI(base_url="https://api.endpoints.anyscale.com/v1", 
+                                      api_key=anyscale_endpoint_key)
         elif openai_api_key:
-            self.llm = setup_openai_llm(openai_api_key=openai_api_key,
-                                        model=model_id,
-                                        temperature=temperature,
-                                        max_tokens=llm_max_tokens)
+            self.client = AsyncOpenAI(api_key=openai_api_key)
         else:
             raise ValueError('One of ["anyscale_endpoint_key", "openai_api_key"] must be set')
+
+        self.model_id = model_id
+        self.max_tokens=llm_max_tokens
+        self.temperature = temperature
+        self.seed = 42
 
     async def generate_response(self, query:str, nodes: List[NodeWithScore]) -> RetrieverResponse:
 
@@ -40,7 +35,7 @@ class ResponseGenerator():
 
         context = "\n".join([node.node.text for node in nodes])        
 
-        user_message =(
+        user_message = (
             "Context information is below.\n"
             "---------------------\n"
             f"{context}\n"
@@ -48,10 +43,25 @@ class ResponseGenerator():
             "If the question can not be answered from the context information say ONLY 'I do not know'."
             f"Answer the question: {query}\n"
         )
-
-        message_history = [
-            ChatMessage(role=MessageRole.SYSTEM, content=system_message),
-            ChatMessage(role=MessageRole.USER, content=user_message)
+    
+        messages = [
+            {"role": "system", "content": system_message },
+            {"role": "user", "content": user_message }
         ]
-        response:ChatResponse = await self.llm.achat(message_history)
-        return RetrieverResponse(response=response.message.content)
+
+        response = await self.client.chat.completions.create(
+            model=self.model_id,
+            messages=messages,
+            seed=self.seed,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens
+        )
+
+        usage = TokenUsage(completion_tokens=response.usage.completion_tokens, 
+                           prompt_tokens=response.usage.prompt_tokens, 
+                           total_tokens=response.usage.total_tokens)
+
+        return RetrieverResponse(response=response.choices[0].message.content,
+                                 finish_reason=response.choices[0].finish_reason,
+                                 model=response.model,
+                                 usage=usage)

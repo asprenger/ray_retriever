@@ -12,8 +12,16 @@ class NodeWithScore(BaseModel):
     node: TextNode
     score: Optional[float] = None
 
+class TokenUsage(BaseModel):
+    completion_tokens: int
+    prompt_tokens: int
+    total_tokens: int
+
 class RetrieverResponse(BaseModel):
     response: str
+    finish_reason: str
+    model: str
+    usage: TokenUsage
 
 class DocumentEmbedding(BaseModel):
     embedding: List[float]
