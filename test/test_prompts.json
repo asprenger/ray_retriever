@@ -1,0 +1,14 @@
+{
+    "response_generator": [
+        {
+            "model_id": "default",
+            "system_message": "Default system message",
+            "user_message": "Default user message"
+        },
+        {
+            "model_id": "llama2-7b",
+            "system_message": "llama2-7b system message",
+            "user_message": "llama2-7b user message"
+        }
+    ]
+}
