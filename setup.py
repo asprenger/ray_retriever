@@ -72,8 +72,6 @@ setup(
     packages=find_packages(include=['ray_retriever', 'ray_retriever.*']),
     install_requires=requirements,
     include_package_data=True,
+    package_data={"ray_retriever": ["serve/prompts.json"]},
     python_requires=">=3.8.0",
 )
-
-
-

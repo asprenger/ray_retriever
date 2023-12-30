@@ -3,6 +3,9 @@ from ray import serve
 from openai import AsyncOpenAI
 from ray_retriever.utils.logging_utils import get_logger
 from ray_retriever.serve.schema import NodeWithScore, RetrieverResponse, TokenUsage
+from ray_retriever.serve.prompt_manager import PromptManager
+
+MODULE_NAME = 'response_generator'
 
 logger = get_logger()
 
@@ -14,7 +17,8 @@ class ResponseGenerator():
                  anyscale_endpoint_key:Optional[str]=None, 
                  openai_api_key:Optional[str]=None,
                  llm_max_tokens:int=256,
-                 temperature:float=0.0):
+                 temperature:float=0.0,
+                 seed:int=42):
         
         if anyscale_endpoint_key:
             self.client = AsyncOpenAI(base_url="https://api.endpoints.anyscale.com/v1", 
@@ -27,25 +31,18 @@ class ResponseGenerator():
         self.model_id = model_id
         self.max_tokens=llm_max_tokens
         self.temperature = temperature
-        self.seed = 42
+        self.seed = seed
+        self.prompt_manager = PromptManager()
 
     async def generate_response(self, query:str, nodes: List[NodeWithScore]) -> RetrieverResponse:
 
-        system_message = "You are a helpful assistant. Always give a consise answer, do not reply using a complete sentence."
-
-        context = "\n".join([node.node.text for node in nodes])        
-
-        user_message = (
-            "Context information is below.\n"
-            "---------------------\n"
-            f"{context}\n"
-            "---------------------\n"
-            "If the question can not be answered from the context information say ONLY 'I do not know'."
-            f"Answer the question: {query}\n"
-        )
+        prompt = self.prompt_manager.get_prompt(MODULE_NAME, self.model_id)
+        
+        context = "\n".join([node.node.text for node in nodes])
+        user_message = prompt.user_message.replace('{context}', context).replace('{query}', query)
     
         messages = [
-            {"role": "system", "content": system_message },
+            {"role": "system", "content": prompt.system_message },
             {"role": "user", "content": user_message }
         ]
 
