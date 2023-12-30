@@ -57,8 +57,7 @@ Restore backup:
         }' \
     http://localhost:9001/v1/backups/filesystem/backup001/restore
 
-The restoration of the backup happens in the background. Check the messages in the Weaviate log to track the progress. The output should 
-look like this:
+The restoration of the backup happens in the background. Check the messages in the Weaviate log to track the progress. The output of a successful backup should look like this:
 
     {"action":"try_restore","backend":"filesystem","backup_id":"backup001","level":"info","msg":"","time":"2023-12-27T14:46:23Z","took":3461703}
     {"action":"restore","backup_id":"backup001","class":"Wikipedia","level":"info","msg":"successfully restored","time":"2023-12-27T14:46:52Z"}
@@ -102,9 +101,10 @@ Example queries and output for `meta-llama/Llama-2-70b-chat-hf`:
     curl --header "Content-Type: application/json" --data '{ "question":"What is a Triceratops?" }' http://127.0.0.1:8000/query
     {"response":"  A Triceratops is a huge herbivorous ceratopsid dinosaur from the late Cretaceous period, characterized by its three horns on its head, bony beak, and a large frill on its neck."}
 
-The current Retriever can only handle questions that can be directly answered from the context retrieved from the index. It can not answer
-multi-step questions like ""Who was older on 1. Jan. 1910, Joseph Stalin or Leon Tritsky?". If the Retriever can not answer the question 
-it should respond with "I do not know".
+If the Retriever can not answer the question it should respond with "I do not know".
+
+The current Retriever can only handle questions that can be directly answered from the retrieved context. It can not answer
+complex questions that require multiple steps and planning.
 
 ## Run tests
 
