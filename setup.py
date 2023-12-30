@@ -30,8 +30,8 @@ def get_version() -> str:
     return version
 
 requirements = [
-    "ray==2.8.0",
-    "ray[serve]==2.8.0",
+    "ray==2.9.0",
+    "ray[serve]==2.9.0",
     "pydantic==1.10.13", # fix problem with Ray Serve startup
     "langchain==0.0.340",
     "llama-index==0.9.16",
