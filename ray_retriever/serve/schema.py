@@ -22,6 +22,7 @@ class RetrieverResponse(BaseModel):
     finish_reason: str
     model: str
     usage: TokenUsage
+    context_node_info: Dict
 
 class DocumentEmbedding(BaseModel):
     embedding: List[float]

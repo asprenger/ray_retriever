@@ -8,6 +8,7 @@ logger = get_logger()
 
 @serve.deployment(name='SearchEngine')
 class SearchEngine():
+    """Retrieve context nodes that help to answer a user query."""
 
     def __init__(self, weaviate_hostname:str, weaviate_port:int, index_name:str, similarity_top_n:int):
         self.weaviate_client = AsyncWeaviateClient(weaviate_hostname, weaviate_port)

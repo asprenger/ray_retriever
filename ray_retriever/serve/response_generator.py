@@ -34,11 +34,12 @@ class ResponseGenerator():
         self.seed = seed
         self.prompt_manager = PromptManager()
 
-    async def generate_response(self, query:str, nodes: List[NodeWithScore]) -> RetrieverResponse:
+    async def generate_response(self, query:str, context_nodes: List[NodeWithScore]) -> RetrieverResponse:
+        "Answer a user query based on a set of context nodes."
 
         prompt = self.prompt_manager.get_prompt(MODULE_NAME, self.model_id)
         
-        context = "\n".join([node.node.text for node in nodes])
+        context = "\n".join([node.node.text for node in context_nodes])
         user_message = prompt.user_message.replace('{context}', context).replace('{query}', query)
     
         messages = [
@@ -54,6 +55,8 @@ class ResponseGenerator():
             max_tokens=self.max_tokens
         )
 
+        context_node_info = [node.node.metadata|{"id":node.node.id} for node in context_nodes]
+        
         usage = TokenUsage(completion_tokens=response.usage.completion_tokens, 
                            prompt_tokens=response.usage.prompt_tokens, 
                            total_tokens=response.usage.total_tokens)
@@ -61,4 +64,5 @@ class ResponseGenerator():
         return RetrieverResponse(response=response.choices[0].message.content,
                                  finish_reason=response.choices[0].finish_reason,
                                  model=response.model,
-                                 usage=usage)
+                                 usage=usage,
+                                 context_node_info=context_node_info)

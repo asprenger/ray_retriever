@@ -14,12 +14,6 @@ from ray_retriever.serve.reranker import Reranker
 from ray_retriever.serve.embedding_generator import EmbeddingGenerator
 from ray_retriever.serve.response_generator import ResponseGenerator
 
-"""
-serve run deploy-configs/retriever_serve.yaml
-
-curl --header "Content-Type: application/json" --data '{ "query":"What was Alan Turings middle name?"}' http://127.0.0.1:8000/query
-"""
-
 logger = get_logger()
 app = FastAPI()
 
@@ -65,7 +59,7 @@ class Retriever():
             generated_response: DeploymentResponse = self._response_generator.generate_response.remote(query, rerank_response)
 
             # Wait for the respone of the chain
-            response = await generated_response
+            response:RetrieverResponse = await generated_response
             return JSONResponse(content={'response':response.response})
         
         except JSONDecodeError as e:
