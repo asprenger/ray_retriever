@@ -34,7 +34,7 @@ class ServiceResource:
 def _get_service_backend(hostname:Optional[str]=None, 
                          port:Optional[int]=None):
     url_hostname = hostname if hostname is not None else DEFAULT_HOSTNAME
-    url_port = port if post is not None else DEFAULT_PORT
+    url_port = port if port is not None else DEFAULT_PORT
     backend_url = f"http://{url_hostname}:{url_port}"
     access_token = "secret_123" # dummy for now
     bearer = f"Bearer {access_token}" if access_token else ""
