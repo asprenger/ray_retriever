@@ -22,7 +22,7 @@ def parse_get_response(response: Dict) -> Dict:
 
     return data_response["Get"]
 
-def to_node(entry:Dict) -> TextNode:
+def to_node(entry:Dict, index_name:str) -> TextNode:
     id = entry['_additional']['id']
     if 'vector' in entry['_additional']:
         embedding = entry['_additional']['vector']
@@ -31,5 +31,5 @@ def to_node(entry:Dict) -> TextNode:
     node_content = json.loads(entry['_node_content'])
     metadata = node_content['metadata']
     text = entry['text']
-    return TextNode(id=id, metadata=metadata, text=text, embedding=embedding)
-
+    return TextNode(id=id, index_name=index_name, metadata=metadata, 
+                    text=text, embedding=embedding)

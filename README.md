@@ -47,7 +47,7 @@ Download backup:
 
     huggingface-cli download asprenger/wikipedia-20220301.simple-weaviate-backup --local-dir /tmp/backups/backup001 --local-dir-use-symlinks False
 
-Restore backup:
+Start restore backup:
 
     curl \
     -X POST \
@@ -57,20 +57,24 @@ Restore backup:
         }' \
     http://localhost:9001/v1/backups/filesystem/backup001/restore
 
-The restoration of the backup happens in the background. Check the messages in the Weaviate log to track the progress. The output of a successful backup should look like this:
+The restoration happens in the background. The following line in the logfile indicates the backup has been started:
 
     {"action":"try_restore","backend":"filesystem","backup_id":"backup001","level":"info","msg":"","time":"2023-12-27T14:46:23Z","took":3461703}
-    {"action":"restore","backup_id":"backup001","class":"Wikipedia","level":"info","msg":"successfully restored","time":"2023-12-27T14:46:52Z"}
 
+The following log messages indicates a successful backup restoration:
+
+    {"action":"restore","backup_id":"backup001","class":"Wikipedia","level":"info","msg":"successfully restored","time":"2023-12-27T14:46:52Z"}
 
 ## Retriever Service
 
-Customizer deployment config file `deploy-configs/retriever_serve.yaml`. Consider setting the following values:
+The config file `deploy-configs/retriever_serve.yaml` must to be customized. The following values must be 
+set:
 
- * Anyscale Endpoints or OpenAI API key
- * Model ID
- * Number of replicas
- * GPU settings
+ * OPENAI_API_KEY and/or ANYSCALE_ENDPOINT_KEY
+ * response_prompt_name
+
+Depending on the used hardware the number of replicas for the different tasks and GPU resources for the 
+`EmbeddingGenerator` and `Reranker` should be adjusted.
 
 Start Retriever:
 
@@ -79,6 +83,8 @@ Start Retriever:
 Use --non-blocking to start application in the background.
 
 Example queries and output for `meta-llama/Llama-2-70b-chat-hf`:
+
+    curl --header "Content-Type: application/json" --data '{ "question":"What is the capital of France and when did it become the capital?"}' http://127.0.0.1:8000/query
 
     curl --header "Content-Type: application/json" --data '{ "question":"What was Alan Turings middle name?"}' http://127.0.0.1:8000/query
     {"response":"  Mathison"}
@@ -92,8 +98,8 @@ Example queries and output for `meta-llama/Llama-2-70b-chat-hf`:
     curl --header "Content-Type: application/json" --data '{ "question":"How many sides does a cube have?"}' http://127.0.0.1:8000/query
     {"response":" 6"}
 
-    curl --header "Content-Type: application/json" --data '{ "question":"What is reasoning?"}' http://127.0.0.1:8000/query
-    {"response":"  Reasoning is a way of thinking that uses logic and facts to decide what is true or best. It is different from obeying tradition or emotions to decide what things are best or true."}
+    curl --header "Content-Type: application/json" --data '{ "question":"How long is the term of a US supreme court judge?"}' http://127.0.0.1:8000/query
+    {"response":"The term of a US Supreme Court judge is for life."}
 
     curl --header "Content-Type: application/json" --data '{ "question":"What is the capital of France?"}' http://127.0.0.1:8000/query
     {"response":"  Paris"}
@@ -102,6 +108,9 @@ Example queries and output for `meta-llama/Llama-2-70b-chat-hf`:
     {"response":"  A Triceratops is a huge herbivorous ceratopsid dinosaur from the late Cretaceous period, characterized by its three horns on its head, bony beak, and a large frill on its neck."}
 
 If the Retriever can not answer the question it should respond with "I do not know".
+
+    curl --header "Content-Type: application/json" --data '{ "question":"What is the current temperature in Paris?"}' http://127.0.0.1:8000/query
+    {"response":"I do not know."}
 
 The current Retriever can only handle questions that can be directly answered from the retrieved context. It can not answer
 complex questions that require multiple steps and planning.

@@ -1,68 +1,69 @@
 from typing import List, Dict, Optional
+import os
 from ray import serve
-from openai import AsyncOpenAI
+from langfuse import Langfuse
 from ray_retriever.utils.logging_utils import get_logger
 from ray_retriever.serve.schema import NodeWithScore, RetrieverResponse, TokenUsage
-from ray_retriever.serve.prompt_manager import PromptManager
-
-MODULE_NAME = 'response_generator'
+from ray_retriever.serve.llm_config import LLMConfig
 
 logger = get_logger()
 
 @serve.deployment(name='ResponseGenerator')
 class ResponseGenerator():
 
-    def __init__(self, 
-                 model_id:str,
-                 anyscale_endpoint_key:Optional[str]=None, 
-                 openai_api_key:Optional[str]=None,
-                 llm_max_tokens:int=256,
-                 temperature:float=0.0,
-                 seed:int=42):
+    def __init__(self, prompt_name:str):
+        aiconfig_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'aiconfig.yaml')
+        self.llm_config = LLMConfig(aiconfig_path=aiconfig_path)
+
+        prompt = self.llm_config.get_prompt(prompt_name) 
+        if prompt is None:
+            raise ValueError(f'Unknown prompt "{prompt_name}"')
         
-        if anyscale_endpoint_key:
-            self.client = AsyncOpenAI(base_url="https://api.endpoints.anyscale.com/v1", 
-                                      api_key=anyscale_endpoint_key)
-        elif openai_api_key:
-            self.client = AsyncOpenAI(api_key=openai_api_key)
-        else:
-            raise ValueError('One of ["anyscale_endpoint_key", "openai_api_key"] must be set')
-
-        self.model_id = model_id
-        self.max_tokens=llm_max_tokens
-        self.temperature = temperature
-        self.seed = seed
-        self.prompt_manager = PromptManager()
-
-    async def generate_response(self, query:str, context_nodes: List[NodeWithScore]) -> RetrieverResponse:
+        self.prompt_name = prompt_name
+        self.langfuse = Langfuse()
+        
+    async def generate_response(self, 
+                                query:str, 
+                                context_nodes: List[NodeWithScore], 
+                                trace_id:str) -> RetrieverResponse:
         "Answer a user query based on a set of context nodes."
 
-        prompt = self.prompt_manager.get_prompt(MODULE_NAME, self.model_id)
-        
         context = "\n".join([node.node.text for node in context_nodes])
-        user_message = prompt.user_message.replace('{context}', context).replace('{query}', query)
-    
-        messages = [
-            {"role": "system", "content": prompt.system_message },
-            {"role": "user", "content": user_message }
-        ]
 
-        response = await self.client.chat.completions.create(
-            model=self.model_id,
-            messages=messages,
-            seed=self.seed,
-            temperature=self.temperature,
-            max_tokens=self.max_tokens
+        prompt = self.llm_config.aiconfig.prompt_index[self.prompt_name]
+        model_settings = dict(prompt.metadata.model.settings)
+        generation = self.langfuse.generation(
+            trace_id=trace_id,
+            name="response-generation",
+            input={'context':context, 'query':query},
+            model_parameters=model_settings
         )
 
-        context_node_info = [node.node.metadata|{"id":node.node.id} for node in context_nodes]
-        
-        usage = TokenUsage(completion_tokens=response.usage.completion_tokens, 
-                           prompt_tokens=response.usage.prompt_tokens, 
-                           total_tokens=response.usage.total_tokens)
+        result = await self.llm_config.run(prompt_name=self.prompt_name, 
+                                           params={'context':context, 'query':query})
 
-        return RetrieverResponse(response=response.choices[0].message.content,
-                                 finish_reason=response.choices[0].finish_reason,
-                                 model=response.model,
-                                 usage=usage,
+        context_node_info = [node.node.metadata | {"node_id":node.node.id, "index_name":node.node.index_name} 
+                             for node in context_nodes]
+        output = result.data.strip()
+        usage = result.metadata['usage']
+
+        generation.end(output=output,
+                       metadata={
+                           "prompt_name": self.prompt_name,
+                           "context_nodes": context_node_info,
+                           "finish_reason": result.metadata['finish_reason'],
+                           "model": result.metadata['model'],
+                           "prompt_tokens": usage['prompt_tokens'],
+                           "completion_tokens": usage['completion_tokens'],  
+                           "total_tokens": usage['total_tokens']
+                        })
+
+        token_usage = TokenUsage(prompt_tokens=usage['prompt_tokens'],
+                           completion_tokens=usage['completion_tokens'],  
+                           total_tokens=usage['total_tokens'])
+
+        return RetrieverResponse(response=output,
+                                 finish_reason=result.metadata['finish_reason'],
+                                 model=result.metadata['model'],
+                                 usage=token_usage,
                                  context_node_info=context_node_info)

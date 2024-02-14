@@ -1,0 +1,92 @@
+$schema: https://json.schemastore.org/aiconfig-1.0
+schema_version: latest
+name: AIConfig Config
+description: Configuration for LLM parameter and prompts
+metadata:
+  default_model: meta-llama/Llama-2-70b-chat-hf
+
+# Anyscale models:
+# meta-llama/Llama-2-7b-chat-hf
+# meta-llama/Llama-2-13b-chat-hf
+# meta-llama/Llama-2-70b-chat-hf
+# mistralai/Mistral-7B-Instruct-v0.1
+# mistralai/Mixtral-8x7B-Instruct-v0.1
+
+# - The assistant should provide detailed, in-depth responses.
+# vs.
+# - The assistant should provide short, concise responses. 
+# - The assistant should not explain or justify the response.
+
+prompts:
+
+- name: generate_response[Llama-2-70b]
+  input: |
+    Context information:
+    {{context}}
+
+    User query: 
+    {{query}}s
+  metadata:
+    model:
+      # Model parser
+      name: AnyscaleEndpoint
+      settings:
+        # model ID sent to Anyscale Endpoints
+        model: meta-llama/Llama-2-70b-chat-hf
+        system_prompt: |
+          You are an assistant for question-answering tasks.
+          Guidelines:
+          - The assistant is given context information to answer the query.
+          - The response MUST be grounded in the context.
+          - Never use any information that is not contained in the context to respond.
+          - The assistant should provide clear, concise responses.
+          - The assistant should not explain or justify the response.
+          - If the query can not be answered from the context respond with "I do not know".
+        max_tokens: 500
+        temperature: 0
+
+- name: generate_response[gpt-4]
+  input: |
+    Context information:
+    {{context}}
+
+    User query: 
+    {{query}}s
+  metadata:
+    model:
+      name: gpt-4-0613
+      settings:
+        system_prompt: |
+          You are an assistant for question-answering tasks.
+          Guidelines:
+          - The assistant is given context information to answer the query.
+          - The response MUST be grounded in the context.
+          - Never use any information that is not contained in the context to respond.
+          - The assistant should provide clear, concise responses.
+          - The assistant should not explain or justify the response.
+          - If the query can not be answered from the context respond with "I do not know".
+        max_tokens: 500
+        temperature: 0
+
+- name: generate_response[gpt-3.5-turbo]
+  input: |
+    Context information:
+    {{context}}
+
+    User query: 
+    {{query}}s
+  metadata:
+    model:
+      name: gpt-3.5-turbo-0613
+      settings:
+        system_prompt: |
+          You are an assistant for question-answering tasks.
+          Guidelines:
+          - The assistant is given context information to answer the query.
+          - The response MUST be grounded in the context.
+          - Never use any information that is not contained in the context to respond.
+          - The assistant should provide clear, concise responses.
+          - The assistant should not explain or justify the response.
+          - If the query can not be answered from the context respond with "I do not know".
+        max_tokens: 500
+        temperature: 0

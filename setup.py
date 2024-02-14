@@ -30,9 +30,8 @@ def get_version() -> str:
     return version
 
 requirements = [
-    "ray==2.9.0",
-    "ray[serve]==2.9.0",
-    "pydantic==1.10.13", # fix problem with Ray Serve startup
+    "ray==2.9.2",
+    "ray[serve]==2.9.2",
     "langchain==0.0.340",
     "llama-index==0.9.16",
     "protobuf==3.20.3",
@@ -45,7 +44,9 @@ requirements = [
     "sentence-transformers==2.2.2",
     "typer==0.9.0",
     "rich==13.3.0",
-    "torch==2.1.1"
+    "torch==2.1.1",
+    "python-aiconfig==1.1.24",
+    "langfuse==2.12.0"
 ]
 
 setup(
@@ -72,6 +73,6 @@ setup(
     packages=find_packages(include=['ray_retriever', 'ray_retriever.*']),
     install_requires=requirements,
     include_package_data=True,
-    package_data={"ray_retriever": ["serve/prompts.json"]},
-    python_requires=">=3.8.0",
+    package_data={"ray_retriever": ["serve/aiconfig.yaml"]},
+    python_requires=">=3.10.0",
 )

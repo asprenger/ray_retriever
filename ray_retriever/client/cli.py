@@ -1,6 +1,5 @@
 from typing import Any, Dict, Iterator, List, Optional, Union, Annotated
 import typer
-import json
 from rich import print as rp
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from ray_retriever.client import sdk
@@ -17,35 +16,30 @@ def progress_spinner():
     )
 
 @app.command()
-def models(metadata: Annotated[bool, "Whether to print metadata"] = False):
-    """Get a list of the available models"""
-    result = ['falcon-7b', 'falcon-13b','falcon-30b']
-    if metadata:
-        for model in result:
-            rp(f"[bold]{model}:[/]")
-            rp('__METADATA__')
-    else:
-        print("\n".join(result))
-
-@app.command()
-def query(query: Annotated[str, typer.Argument()]):
+def query(query: Annotated[str, typer.Argument()], 
+          hostname:Optional[str]=None, 
+          port:Optional[int]=None):
     with progress_spinner() as progress:
         progress.add_task(
                 description=f"Run query...",
                 total=None,
             )
-        result = sdk.query(query)
-        print(f"Answer: {result.response}")
+        result = sdk.query(query, hostname, port)        
+        print(result.model_dump_json(indent=2))
 
 @app.command()
-def search(query: Annotated[str, typer.Argument()]):
+def health(hostname:Optional[str]=None, 
+           port:Optional[int]=None):
     with progress_spinner() as progress:
         progress.add_task(
-                description=f"Run search...",
+                description=f"Check health...",
                 total=None,
             )
-        result = sdk.search(query)
-        print(json.dumps(result.nodes))
+        result = sdk.health(hostname, port)
+        if result:
+            print('OK')
+        else:
+            print('FAIL')
 
 if __name__ == "__main__":
     app()

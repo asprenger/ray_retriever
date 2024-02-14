@@ -19,6 +19,10 @@ applications:
       # "The current process just got forked, after parallelism has already been used."
       # See: https://stackoverflow.com/questions/62691279/how-to-disable-tokenizers-parallelism-true-false-warning
       TOKENIZERS_PARALLELISM: "false"
+      OPENAI_API_KEY: ${OPENAI_KEY}
+      ANYSCALE_ENDPOINT_KEY: ${ANYSCALE_KEY}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PK}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SK}
 
   args:
     embedding_batch_size: 32
@@ -29,17 +33,7 @@ applications:
     similarity_top_n: 20
     rerank_top_n: 3
     rerank_batch_size: 32
-    # Anyscale models:
-    # meta-llama/Llama-2-7b-chat-hf
-    # meta-llama/Llama-2-13b-chat-hf
-    # meta-llama/Llama-2-70b-chat-hf
-    # codellama/CodeLlama-34b-Instruct-hf
-    # mistralai/Mistral-7B-Instruct-v0.1
-    # mistralai/Mixtral-8x7B-Instruct-v0.1
-    response_model: meta-llama/Llama-2-70b-chat-hf
-    anyscale_endpoint_key: esecret_1234567890
-    #response_model: gpt-3.5-turbo
-    #openai_api_key: sk-1234567890
+    response_prompt_name: generate_response[gpt-4]
 
   deployments:
   - name: EmbeddingGenerator

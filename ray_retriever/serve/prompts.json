@@ -1,9 +1,0 @@
-{
-    "response_generator": [
-        {
-            "model_id":"default",
-            "system_message": "You are a helpful assistant. Always give a consise answer, do not reply using a complete sentence.",
-            "user_message": "Context information is below.\n---------------------\n{context}\n---------------------\nIf the question can not be answered from the context information say ONLY 'I do not know'.\nAnswer the question: {query}\n"
-        }
-    ]
-}

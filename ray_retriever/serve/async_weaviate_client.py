@@ -107,7 +107,7 @@ class AsyncWeaviateClient():
         similarity_key = "distance"
         similarities = [get_node_similarity(entry, similarity_key) for entry in entries]
 
-        nodes = [to_node(entry) for entry in entries]
+        nodes = [to_node(entry, index_name) for entry in entries]
 
         nodes = nodes[: similarity_top_k]
 
