@@ -140,7 +140,7 @@ class AsyncWeaviateClient():
         parsed_result = parse_get_response(query_result)
         entries = parsed_result[index_name]
 
-        nodes = [to_node(entry) for entry in entries]
+        nodes = [to_node(entry, index_name) for entry in entries]
 
         return nodes
 

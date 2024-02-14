@@ -48,22 +48,23 @@ class ResponseGenerator():
         usage = result.metadata['usage']
 
         generation.end(output=output,
-                       metadata={
-                           "prompt_name": self.prompt_name,
-                           "context_nodes": context_node_info,
-                           "finish_reason": result.metadata['finish_reason'],
-                           "model": result.metadata['model'],
-                           "prompt_tokens": usage['prompt_tokens'],
-                           "completion_tokens": usage['completion_tokens'],  
-                           "total_tokens": usage['total_tokens']
+                    metadata={
+                        "prompt_name": self.prompt_name,
+                        "context_nodes": context_node_info,
+                        "finish_reason": result.metadata['finish_reason'],
+                        "model": result.metadata['model'],
+                        "prompt_tokens": usage['prompt_tokens'],
+                        "completion_tokens": usage['completion_tokens'],  
+                        "total_tokens": usage['total_tokens']
                         })
 
         token_usage = TokenUsage(prompt_tokens=usage['prompt_tokens'],
-                           completion_tokens=usage['completion_tokens'],  
-                           total_tokens=usage['total_tokens'])
+                        completion_tokens=usage['completion_tokens'],  
+                        total_tokens=usage['total_tokens'])
 
         return RetrieverResponse(response=output,
-                                 finish_reason=result.metadata['finish_reason'],
-                                 model=result.metadata['model'],
-                                 usage=token_usage,
-                                 context_node_info=context_node_info)
+                                finish_reason=result.metadata['finish_reason'],
+                                model=result.metadata['model'],
+                                usage=token_usage,
+                                context_node_info=context_node_info)
+

@@ -31,7 +31,7 @@ prompts:
       # Model parser
       name: AnyscaleEndpoint
       settings:
-        # model ID sent to Anyscale Endpoints
+        # Model ID sent to Anyscale Endpoints
         model: meta-llama/Llama-2-70b-chat-hf
         system_prompt: |
           You are an assistant for question-answering tasks.

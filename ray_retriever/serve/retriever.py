@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request
 from langfuse import Langfuse
 from ray_retriever.utils.logging_utils import get_logger
 from ray_retriever.constants import DEFAULT_EMBEDDING_MODEL, DEFAULT_RERANK_MODEL
-from ray_retriever.serve.schema import RetrieverResponse
+from ray_retriever.serve.schema import RetrieverResponse, TextNode
 from ray_retriever.serve.search_engine import SearchEngine
 from ray_retriever.serve.reranker import Reranker
 from ray_retriever.serve.embedding_generator import EmbeddingGenerator
@@ -43,6 +43,22 @@ class Retriever():
     async def health(self) -> Response:
         """Health check."""
         return Response(status_code=200)
+
+    @app.get("/node/{node_id}")
+    async def get_node(self, node_id:str) -> Dict:
+        try:
+            node = await self._search_engine.get_text_node.remote(node_id)
+            if node is not None:
+                return JSONResponse(content={
+                    "id": node.id, 
+                    "index_name": node.index_name, 
+                    "metadata": node.metadata, 
+                    "text": node.text})
+            else:
+                return Response(status_code=404, content=f'Text node "{node_id}" not found')
+        except Exception as e:
+            logger.error('Error in get_node()', exc_info=1)
+            return JSONResponse(status_code=500, content='Internal error')
 
     @app.post("/query")
     async def query(self, request: Request) -> JSONResponse:
