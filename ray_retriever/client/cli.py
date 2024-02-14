@@ -16,6 +16,19 @@ def progress_spinner():
     )
 
 @app.command()
+def node(node_id: Annotated[str, typer.Argument()], 
+         hostname:Optional[str]=None, 
+         port:Optional[int]=None):
+    with progress_spinner() as progress:
+        progress.add_task(
+                description=f"Get text node...",
+                total=None,
+            )
+        result = sdk.get_text_node(node_id, hostname, port)
+        print(result.model_dump_json(indent=2))
+
+
+@app.command()
 def query(query: Annotated[str, typer.Argument()], 
           hostname:Optional[str]=None, 
           port:Optional[int]=None):

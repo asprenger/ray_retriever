@@ -23,6 +23,13 @@ class SourceNode(BaseModel):
     metadata: Dict
     text: str
 
+class TextNode(BaseModel):
+    id: str
+    index_name: str
+    metadata:Dict
+    text: str
+
+
 class ServiceResource:
     """Stores information about the backend configuration."""
 
@@ -49,6 +56,25 @@ def _get_result(response: requests.Response) -> Dict[str, Any]:
             f"Error decoding JSON from {response.url}. Text response: {response.text}",
             response=response,
         ) from e
+
+def get_text_node(node_id:str, 
+                  hostname:Optional[str]=None, 
+                  port:Optional[int]=None) -> TextNode:
+    backend = _get_service_backend(hostname, port)
+    url = backend.backend_url + f"node/{node_id}"
+    headers = backend.headers
+    response = requests.get(
+            url,
+            headers=headers,
+            timeout=HTTP_TIMEOUT,
+        )
+    if response.status_code == 200:
+        result = _get_result(response)
+        return TextNode(**result)
+    else:
+        raise ResponseError(f"Status code: {response.status_code} from: {response.url}. Text response: {response.text}", 
+                            response=response)
+
 
 def query(query:str, 
           hostname:Optional[str]=None, 
