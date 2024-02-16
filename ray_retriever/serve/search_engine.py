@@ -33,10 +33,10 @@ class SearchEngine():
             "operator": "Equal",
             "valueText": node_id
         }
-        result = await self.weaviate_client.get_all_nodes(index_name=self.index_name, 
-                                                          filter=filter, 
-                                                          max_result_size=1, 
-                                                          return_embeddings=return_embedding)
+        result = await self.weaviate_client.get_nodes(index_name=self.index_name, 
+                                                      filter=filter, 
+                                                      max_result_size=1, 
+                                                      return_embeddings=return_embedding)
         if len(result) == 1:
             return result[0]
         else:
