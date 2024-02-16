@@ -12,10 +12,13 @@ metadata:
 # mistralai/Mistral-7B-Instruct-v0.1
 # mistralai/Mixtral-8x7B-Instruct-v0.1
 
-# - The assistant should provide detailed, in-depth responses.
-# vs.
-# - The assistant should provide short, concise responses. 
-# - The assistant should not explain or justify the response.
+# The prompts instruct the assistant to give a concise response 
+# without further explanation. It can be instructed to give a 
+# longer, detailed response by replacing the instruction:
+#   - The assistant should provide detailed, in-depth responses.
+# with:
+#   - The assistant should provide short, concise responses. 
+#   - The assistant should not explain or justify the response.
 
 prompts:
 

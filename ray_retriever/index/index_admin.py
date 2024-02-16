@@ -6,6 +6,8 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 import asyncio
 from ray_retriever.serve.async_weaviate_client import AsyncWeaviateClient
 
+# python -m ray_retriever.index.index_admin
+
 app = typer.Typer()
 
 def progress_spinner():
@@ -15,10 +17,9 @@ def progress_spinner():
         transient=True,
     )
 
-async def run_schema():
-    index_name = 'Wikipedia'
-    hostname = '127.0.0.1'
-    port = 9001
+async def run_schema(index_name: str, 
+                     hostname: str, 
+                     port: int):
     aclient = AsyncWeaviateClient(hostname, port)
     try:
         schema = await aclient.get_schema(index_name)
@@ -27,13 +28,14 @@ async def run_schema():
         await aclient.close()
 
 @app.command()
-def schema():
-    asyncio.run(run_schema())
+def schema(index_name:str = 'Wikipedia',
+           hostname:str = '127.0.0.1', 
+           port:int = 9001):
+    asyncio.run(run_schema(index_name, hostname, port))
 
-async def run_content():
-    index_name = 'Wikipedia'
-    hostname = '127.0.0.1'
-    port = 9001
+async def run_content(index_name:str,
+                      hostname:str, 
+                      port:int):
     aclient = AsyncWeaviateClient(hostname, port)
     try:
         nodes = await aclient.get_all_nodes(index_name, max_result_size=5000)
@@ -43,9 +45,10 @@ async def run_content():
         await aclient.close()
 
 @app.command()
-def content():
-    asyncio.run(run_content())
-
+def content(index_name:str = 'Wikipedia',
+            hostname:str = '127.0.0.1', 
+            port:int = 9001):
+    asyncio.run(run_content(index_name, hostname, port))
 
 if __name__ == "__main__":
     app()
