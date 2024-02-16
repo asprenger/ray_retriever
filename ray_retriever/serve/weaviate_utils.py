@@ -23,7 +23,6 @@ def parse_get_response(response: Dict) -> Dict:
     return data_response["Get"]
 
 def to_node(entry:Dict, index_name:str) -> TextNode:
-    print(entry)
     id = entry['_additional']['id']
     if 'vector' in entry['_additional']:
         embedding = entry['_additional']['vector']
