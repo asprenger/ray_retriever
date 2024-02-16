@@ -1,4 +1,4 @@
-# Serve config file
+# Ray Serve config file
 #
 # For documentation see: 
 # https://docs.ray.io/en/latest/serve/production-guide/config.html
@@ -33,7 +33,7 @@ applications:
     similarity_top_n: 20
     rerank_top_n: 3
     rerank_batch_size: 32
-    response_prompt_name: generate_response[gpt-4]
+    response_prompt_name: generate_response[Llama-2-70b]
 
   deployments:
   - name: EmbeddingGenerator

@@ -67,6 +67,7 @@ class Retriever():
             if 'question' not in payload:
                 return JSONResponse(status_code=400, content='Missing parameter: "question"')
             query = payload['question'] 
+            return_context_nodes = 'return_context_nodes' in payload and payload['return_context_nodes'] == True
 
             trace = self.langfuse.trace(
                 name = "ray-retriever",
@@ -93,7 +94,14 @@ class Retriever():
             # Update Trace with output
             self.langfuse.trace(id=trace.id, output=response.response)
 
-            return JSONResponse(content={'response': response.response, 'trace_url': trace.get_trace_url()})
+            response_content = {
+                'response': response.response, 
+                'trace_url': trace.get_trace_url()
+            }
+            if return_context_nodes:
+                response_content['context_nodes'] = response.context_node_info
+
+            return JSONResponse(content=response_content)
         
         except JSONDecodeError as e:
             return JSONResponse(status_code=400, content='Error parsing JSON request')

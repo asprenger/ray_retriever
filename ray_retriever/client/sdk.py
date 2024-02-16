@@ -17,6 +17,7 @@ class SearchResult(BaseModel):
 class QueryResult(BaseModel):
     response: str
     trace_url: str
+    context_nodes: Optional[List[Dict]] = None
 
 class SourceNode(BaseModel):
     id: str
@@ -77,6 +78,7 @@ def get_text_node(node_id:str,
 
 
 def query(query:str, 
+          return_context_nodes:bool=False,
           hostname:Optional[str]=None, 
           port:Optional[int]=None) -> QueryResult:
     """Call QA service.
@@ -97,6 +99,7 @@ def query(query:str,
     headers = backend.headers
     payload = { 
         "question": query, 
+        "return_context_nodes": return_context_nodes
     }
     response = requests.post(
             url,

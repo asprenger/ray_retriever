@@ -84,7 +84,7 @@ Use --non-blocking to start application in the background.
 
 Example queries and output for `meta-llama/Llama-2-70b-chat-hf`:
 
-    curl --header "Content-Type: application/json" --data '{ "question":"What is the capital of France and when did it become the capital?"}' http://127.0.0.1:8000/query
+    curl --header "Content-Type: application/json" --data '{ "question":"What was the first capital of France?"}' http://127.0.0.1:8000/query
 
     curl --header "Content-Type: application/json" --data '{ "question":"What was Alan Turings middle name?"}' http://127.0.0.1:8000/query
     {"response":"  Mathison"}
