@@ -1,3 +1,5 @@
+from typing import Any, Dict, List, Optional
+import argparse
 import yaml
 from pydantic import BaseModel
 from datasets import Dataset
@@ -9,23 +11,24 @@ from ragas.metrics import (
     context_utilization
 )
 from ragas import evaluate
+from ragas.evaluation import Result
 from ray_retriever.client import sdk
 
 # python -m ray_retriever.eval.evaluate
 
 class EvalSample(BaseModel):
     query:str
+    answer:Optional[str] = None
 
-def main():
-
-    with open('datasets/samples.yaml', 'r') as stream:
-        queries = yaml.safe_load(stream)
+def main(samples_path:str, dataset_save_path:Optional[str]):
 
     questions = []
     contexts = []
     responses = []
-
     # ground_truths: list[list[str]] - The ground truth answer to the questions. (only required if you are using context_recall)
+
+    with open(samples_path, 'r') as stream:
+        queries = yaml.safe_load(stream)
 
     for sample in queries['samples']:
 
@@ -52,22 +55,27 @@ def main():
         "contexts": contexts,
         "answer": responses
         })
-    print(ds)
 
-    ds.save_to_disk('/tmp/eval_dataset')
+    if dataset_save_path is not None:
+        ds.save_to_disk(dataset_save_path)
 
-    result = evaluate(
-        ds,
-        metrics=[
-            #context_precision,
-            faithfulness,
-            answer_relevancy,
-            context_utilization,
-            #context_recall,
-        ],
-    )
+    # 'context_precision' requires columns ['ground_truth']
+    # 'context_recall' requires columns ['ground_truth']
 
-    print(result)
+    metrics=[
+        faithfulness, 
+        answer_relevancy,
+        context_utilization,
+    ]
+
+    eval_result = evaluate(ds, metrics=metrics)
+    print(eval_result)
 
 if __name__ == "__main__":
-    main()    
+    parser = argparse.ArgumentParser(description='Ray Retriever Chatbot')
+    parser.add_argument('--samples-path', type=str, default='datasets/samples.yaml',
+                        help="Path to store the collected dataset")
+    parser.add_argument('--dataset-save-path', type=str, default='/tmp/eval_dataset',
+                        help="Path to store the collected dataset")
+    args = parser.parse_args()
+    main(samples_path=args.samples_path, dataset_save_path=args.dataset_save_path)

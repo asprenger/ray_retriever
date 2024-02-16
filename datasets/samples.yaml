@@ -1,10 +1,17 @@
 samples:
 - query: What was the first capital of France?
+  answer: The first capital of France was Tournai, which was the capital before 486.
 - query: What was Alan Turings middle name?
+  answer: Alan Turing's middle name was Mathison. 
 - query: Where and when has Alan turing been born?
+  answer: Alan Turing was born in Maida Vale, London, on June 23, 1912.
 - query: What is the shape of a cube?
+  answer: The shape of a cube is a 3D solid object with all right angles and whose height, width, and depth are all the same. It is a type of rectangular prism and has 6 square faces, 12 edges, and 8 corners.
 - query: How many sides does a cube have?
+  answer: The cube has 6 sides.
 - query: How long is the term of a US supreme court judge?
+  answer: The term of a US Supreme Court Justice is lifetime, until they resign, retire, or pass away.
 - query: What is the capital of France?
+  answer: The capital of France is Paris.
 - query: What is a Triceratops?
-- query: What is the current temperature in Paris?
+  answer: A Triceratops is a huge herbivorous ceratopsid dinosaur from the late Cretaceous. It had three horns on its head, and its name came from these three horns. They were mainly found in North America. As adults, they grew up to 30 feet long by 9 feet tall, and probably weighed around 5,400 kg (12,000 lb).

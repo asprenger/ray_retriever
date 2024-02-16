@@ -28,8 +28,8 @@ class LLMConfig():
          
         if os.getenv("OPENAI_API_KEY") is not None:
             logger.info('Found OPENAI_API_KEY')
-        if os.getenv("ANYSCALE_ENDPOINT_KEY") is not None:
-            logger.info('Found ANYSCALE_ENDPOINT_KEY')
+        if os.getenv("ANYSCALE_ENDPOINT_API_KEY") is not None:
+            logger.info('Found ANYSCALE_ENDPOINT_API_KEY')
 
         def callback_handler(event: CallbackEvent):
             pass
