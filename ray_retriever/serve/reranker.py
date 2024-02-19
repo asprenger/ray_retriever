@@ -11,7 +11,9 @@ DEFAULT_SENTENCE_TRANSFORMER_MAX_LENGTH = 512 # TODO
 
 @serve.deployment(name='Reranker')
 class Reranker():
-    """Rerank context nodes and return the top-n nodes"""
+    """Rerank context nodes and return the top-n nodes. The reranking
+    is calculated by a local model. This task should be deployed on 
+    a GPU node."""
 
     def __init__(self, model: str, top_n:int, batch_size:int):
         self.top_n = top_n

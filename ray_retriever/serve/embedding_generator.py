@@ -9,7 +9,10 @@ logger = get_logger()
 
 @serve.deployment(name='EmbeddingGenerator')
 class EmbeddingGenerator():
-    """Calculate embeddings for a user query."""
+    """Calculate the embedding vector for a user query. The embedding
+    vector is calculated by a local embedding model. This task should
+    be deployed on a GPU node.
+    """
 
     def __init__(self, model: str, batch_size:int, batch_wait_timeout_s:float):
         self.handle_batch.set_max_batch_size(batch_size)

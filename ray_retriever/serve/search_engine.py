@@ -9,19 +9,12 @@ logger = get_logger()
 
 @serve.deployment(name='SearchEngine')
 class SearchEngine():
-    """Retrieve context nodes that help to answer a user query."""
+    """Retrieve context nodes for a given user query. This 
+    task performs a similarity search on Weaviate to fetch
+    the context nodes.
+    """
 
     def __init__(self, weaviate_hostname:str, weaviate_port:int, index_name:str, similarity_top_n:int):
-        """_summary_
-
-        
-
-        Args:
-            weaviate_hostname (str): _description_
-            weaviate_port (int): _description_
-            index_name (str): Index name. The index name is case sensitive.
-            similarity_top_n (int): _description_
-        """
         self.weaviate_client = AsyncWeaviateClient(weaviate_hostname, weaviate_port)
         self.index_name = index_name
         self.similarity_top_n = similarity_top_n
