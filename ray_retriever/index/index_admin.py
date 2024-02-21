@@ -21,18 +21,30 @@ def progress_spinner():
         transient=True,
     )
 
+def create_client(hostname:str, port:int):
+    url = f"http://{hostname}:{port}/"
+    return weaviate.Client(url=url)
+
+@app.command()
+def cluster(hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAVIATE_HOSTNAME, 
+         port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
+    """Show Weaviate cluster information."""
+
+    client = create_client(hostname, port)    
+    nodes_status = client.cluster.get_nodes_status()
+    print(json.dumps(nodes_status, indent=2))
+
+
 @app.command()
 def ping(hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAVIATE_HOSTNAME, 
          port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
     """Ping Weaviate."""
 
-    weaviate_url = f"http://{hostname}:{port}/"
-    client = weaviate.Client(url=weaviate_url)
+    client = create_client(hostname, port)
     if client.is_ready():
         print('OK')
     else:
         print('FAIL')
-
 
 @app.command()
 def schema(index: Annotated[str, typer.Argument(help="Index name")],
@@ -40,19 +52,17 @@ def schema(index: Annotated[str, typer.Argument(help="Index name")],
            port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
     """Show index schema."""
 
-    weaviate_url = f"http://{hostname}:{port}/"
-    client = weaviate.Client(url=weaviate_url)
+    client = create_client(hostname, port)
     schema = client.schema.get(index)
     print(json.dumps(schema, indent=2))
 
-    
-@app.command()
-def meta(hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAVIATE_HOSTNAME, 
-         port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
-    """Show Weaviate metadata."""
 
-    weaviate_url = f"http://{hostname}:{port}/"
-    client = weaviate.Client(url=weaviate_url)
+@app.command()
+def node(hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAVIATE_HOSTNAME, 
+         port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
+    """Show Weaviate node information."""
+
+    client = create_client(hostname, port)
     print(json.dumps(client.get_meta(), indent=2))
 
 
@@ -60,52 +70,38 @@ def meta(hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAV
 def delete(index: Annotated[str, typer.Argument(help="Index name")],
            hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAVIATE_HOSTNAME, 
            port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
-    """Delete index."""
+    """Delete an index."""
 
-    url = f"http://{hostname}:{port}/"
-    client = weaviate.Client(url=url)
+    client = create_client(hostname, port)
     client.schema.delete_class(index)
 
 
 @app.command()
 def backup(index: Annotated[str, typer.Argument(help="Index name")],
            backup_id: Annotated[str, typer.Argument(help="Backup ID")],
+           wait_for_completion: Annotated[bool, typer.Option(help="Whether to wait until the backup is done.")] = False,
            hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAVIATE_HOSTNAME, 
            port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
     """Trigger index backup."""
 
-    url = f"http://{hostname}:{port}/v1/backups/filesystem"
-    payload = { "id": backup_id, "include": [index]}
-    response = requests.post(
-            url,
-            headers={"Content-Type": "application/json"},
-            json=payload,
-            timeout=5,
-        )
-    if response.status_code == 200:
-        print('OK')
-    else:
-        print('FAIL')
+    client = create_client(hostname, port)
+    client.backup.create(backup_id=backup_id, 
+                         backend='filesystem', 
+                         include_classes=[index],
+                         wait_for_completion=wait_for_completion)
 
 
 @app.command()
 def restore(backup_id: Annotated[str, typer.Argument(help="Backup ID")],
+            wait_for_completion: Annotated[bool, typer.Option(help="Whether to wait until the backup is done.")] = False,
             hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAVIATE_HOSTNAME, 
             port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
     """Trigger backup restore."""
 
-    url = f"http://{hostname}:{port}/v1/backups/filesystem/{backup_id}/restore"
-    payload = {"id": backup_id}
-    response = requests.post(
-            url,
-            headers={"Content-Type": "application/json"},
-            json=payload,
-            timeout=5,
-        )
-    if response.status_code == 200:
-        print('OK')
-    else:
-        print('FAIL')
+    client = create_client(hostname, port)
+    client.backup.restore(backup_id=backup_id,
+                          backend='filesystem', 
+                          wait_for_completion=wait_for_completion)
 
 
 def get_batch_with_cursor(client:weaviate.Client, 
@@ -146,10 +142,9 @@ def export(index: Annotated[str, typer.Argument(help="Index name")],
            return_text: Annotated[bool, typer.Option(help="Returns text properties if set to True")] = True,
            hostname: Annotated[str, typer.Option(help="Weaviate hostname")] = WEAVIATE_HOSTNAME, 
            port: Annotated[str, typer.Option(help="Weaviate port")] = WEAVIATE_PORT):
-    """Export the content of an index"""
+    """Export the content of an index."""
 
-    weaviate_url = f"http://{hostname}:{port}/"
-    client = weaviate.Client(url=weaviate_url)
+    client = create_client(hostname, port)
     
     cursor = None
     while True:
