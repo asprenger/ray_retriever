@@ -1,6 +1,7 @@
 import os
 import time
 import itertools
+import subprocess
 from math import ceil
 
 def partition(lst, n):
@@ -35,3 +36,9 @@ def get_dir_size(dir_path:str):
             if not os.path.islink(fp):
                 total_size += os.path.getsize(fp)
     return total_size
+
+def execute_bash(command):
+    results = subprocess.run(
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+    return results
